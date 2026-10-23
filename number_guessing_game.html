@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Number Guessing Game</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      padding: 20px; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(circle at top, #263b68, #0b1020 65%);
+      color: #f4f7ff;
+    }
+    .game {
+      width: min(100%, 460px); padding: 32px; border-radius: 24px;
+      background: rgba(19, 28, 51, .94); border: 1px solid #344363;
+      box-shadow: 0 24px 70px #0006;
+    }
+    .eyebrow { color: #9fb8ff; text-transform: uppercase; letter-spacing: .15em; font-size: .75rem; font-weight: 800; }
+    h1 { margin: 8px 0; font-size: clamp(2rem, 8vw, 2.7rem); }
+    .subtitle { color: #bdc8df; line-height: 1.55; }
+    .range { display: inline-block; padding: 7px 12px; border-radius: 999px; background: #263b68; color: #dce6ff; font-weight: 700; }
+    form { display: flex; gap: 10px; margin: 22px 0 12px; }
+    input {
+      min-width: 0; flex: 1; padding: 14px; border-radius: 12px;
+      border: 1px solid #53678f; background: #0d1427; color: white; font: inherit;
+    }
+    button {
+      border: 0; border-radius: 12px; padding: 13px 17px; cursor: pointer;
+      font: inherit; font-weight: 800; background: #8eabff; color: #101a33;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:focus-visible, input:focus-visible { outline: 3px solid #d8e2ff; outline-offset: 3px; }
+    .secondary { background: #273653; color: #eaf0ff; width: 100%; margin-top: 12px; }
+    .message { min-height: 54px; margin: 18px 0 8px; font-weight: 700; line-height: 1.5; }
+    .stats { display: flex; justify-content: space-between; gap: 12px; padding-top: 15px; border-top: 1px solid #344363; color: #c2cce2; }
+    .stats strong { color: white; }
+    .hint { font-size: .88rem; color: #9eabc6; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <div class="eyebrow">Mini game · Built with care</div>
+    <h1>Guess the Number</h1>
+    <p class="subtitle">I'm thinking of a secret number. Can you find it? I'll tell you whether to go higher or lower.</p>
+    <p class="range">A number from 1 to 100</p>
+    <form id="guess-form">
+      <input id="guess" type="number" min="1" max="100" step="1" placeholder="Enter your guess" aria-label="Your guess" required>
+      <button type="submit">Guess</button>
+    </form>
+    <p id="message" class="message" role="status" aria-live="polite">Make your first guess!</p>
+    <div class="stats">
+      <span>Guesses: <strong id="count">0</strong></span>
+      <span>Status: <strong id="status">Playing</strong></span>
+    </div>
+    <button class="secondary" id="restart" type="button">Start a new game</button>
+    <p class="hint">Tip: Use the higher/lower clues to narrow it down.</p>
+  </main>
+  <script>
+    let secretNumber, guesses, finished;
+    const form = document.getElementById('guess-form');
+    const input = document.getElementById('guess');
+    const message = document.getElementById('message');
+    const count = document.getElementById('count');
+    const status = document.getElementById('status');
+
+    function startGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      guesses = 0;
+      finished = false;
+      count.textContent = '0';
+      status.textContent = 'Playing';
+      message.textContent = 'Make your first guess!';
+      input.value = '';
+      input.disabled = false;
+      form.querySelector('button').disabled = false;
+      input.focus();
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (finished) return;
+      const guess = Number(input.value);
+      if (!Number.isInteger(guess) || guess < 1 || guess > 100) {
+        message.textContent = 'Please enter a whole number from 1 to 100.';
+        input.focus();
+        return;
+      }
+      guesses++;
+      count.textContent = String(guesses);
+      if (guess < secretNumber) {
+        message.textContent = 'Go higher! Try a bigger number.';
+      } else if (guess > secretNumber) {
+        message.textContent = 'Go lower! Try a smaller number.';
+      } else {
+        message.textContent = `Correct! The number was ${secretNumber}. You got it in ${guesses} ${guesses === 1 ? 'guess' : 'guesses'}!`;
+        status.textContent = 'Won!';
+        finished = true;
+        input.disabled = true;
+        form.querySelector('button').disabled = true;
+      }
+      if (!finished) {
+        input.select();
+      }
+    });
+
+    document.getElementById('restart').addEventListener('click', startGame);
+    startGame();
+  </script>
+</body>
+</html>
